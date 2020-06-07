@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx3/body.dart';
 import 'package:mobx3/controller.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,13 +11,21 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter MobX',
-      theme: ThemeData(
-        primarySwatch: Colors.amber,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    return MultiProvider(
+      child: MaterialApp(
+        title: 'Flutter MobX',
+        theme: ThemeData(
+          primarySwatch: Colors.amber,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+        ),
+        home: MyHomePage(title: 'Formulário'),
       ),
-      home: MyHomePage(title: 'Formulário'),
+      providers: [
+        Provider<Controller>(
+          create: (_) => Controller(),
+          dispose: (_, controller) => controller.dispose(),
+        )
+      ],
     );
   }
 }
@@ -29,61 +39,15 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final Controller controller = Controller();
-
-  _textField({String label, onChanged, String Function() errorText}) {
-    return TextField(
-      onChanged: onChanged,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(),
-        labelText: label,
-        errorText: errorText == null ? null : errorText(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<Controller>(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(8),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Observer(
-              builder: (_) {
-                return _textField(
-                  label: 'nome',
-                  onChanged: controller.client.changeName,
-                  errorText: controller.validateName,
-                );
-              },
-            ),
-            SizedBox(height: 20),
-            Observer(
-              builder: (_) {
-                return _textField(
-                  label: 'email',
-                  onChanged: controller.client.changeEmail,
-                  errorText: controller.validateEmail,
-                );
-              },
-            ),
-            SizedBox(height: 20),
-            Observer(builder: (_) {
-              return RaisedButton(
-                disabledColor: Colors.grey,
-                color: Colors.amber,
-                onPressed: controller.isValid ? () {} : null,
-                child: Text('Salvar'),
-              );
-            }),
-          ],
-        ),
-      ),
+      appBar: AppBar(title: Observer(builder: (_) {
+        return Text(
+            controller.isValid ? 'fomulario válido' : 'formulario inválido');
+      })),
+      body: BodyWidget(),
     );
   }
 }
