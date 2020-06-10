@@ -52,6 +52,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: TextField(
+          onChanged: controller.setFilter,
           decoration: InputDecoration(hintText: "pesquisa..."),
         ),
         actions: <Widget>[
@@ -66,9 +67,9 @@ class _HomePageState extends State<HomePage> {
       body: Observer(
         builder: (_) {
           return ListView.builder(
-            itemCount: controller.listItens.length,
+            itemCount: controller.listFiltered.length,
             itemBuilder: (_, index) {
-              var item = controller.listItens[index];
+              var item = controller.listFiltered[index];
               return ItemWidget(
                 item: item,
                 removeClicked: () {
